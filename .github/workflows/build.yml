@@ -84,14 +84,18 @@ jobs:
             echo "ERROR: no app build file found" && exit 1
           fi
 
-      - name: Apply stdlib duplicate-class resolution
+      - name: Apply root build patches
         run: |
-          # Append Groovy resolution strategy to build.gradle if it exists (Groovy DSL project)
+          # Append stdlib conflict resolution + allprojects jvmTarget=11 override.
+          # Handles both Groovy DSL (build.gradle) and Kotlin DSL (build.gradle.kts).
           if [ -f android/build.gradle ]; then
             cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
-            echo "Appended stdlib resolution to android/build.gradle"
+            echo "Patched android/build.gradle (Groovy DSL)"
+          elif [ -f android/build.gradle.kts ]; then
+            cat android_gradle_override/stdlib_resolution.gradle.kts >> android/build.gradle.kts
+            echo "Patched android/build.gradle.kts (Kotlin DSL)"
           else
-            echo "No build.gradle found — skipping stdlib resolution append"
+            echo "WARNING: no root android/build.gradle(.kts) found — skipping root patch"
           fi
 
       - name: Install dependencies
@@ -101,7 +105,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release --verbose
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
