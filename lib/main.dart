@@ -8,11 +8,19 @@ import 'core/services/background_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await NotificationService.init();
-  await NotificationService.requestPermission();
+  try {
+    await NotificationService.init();
+    await NotificationService.requestPermission();
+  } catch (e) {
+    debugPrint('NotificationService init error: $e');
+  }
 
-  await Workmanager().initialize(callbackDispatcher);
-  await BackgroundService.register();
+  try {
+    await Workmanager().initialize(callbackDispatcher);
+    await BackgroundService.register();
+  } catch (e) {
+    debugPrint('Workmanager init error: $e');
+  }
 
   runApp(const ProviderScope(child: BetTrackerApp()));
 }
