@@ -14,15 +14,18 @@ allprojects {
     }
 
     // KGP 2.x enforces strict Java/Kotlin JVM-target consistency. Plugin subprojects
-    // (shared_preferences_android, workmanager, etc.) pick up the installed JDK version
-    // for javac (17 on CI) while their Kotlin tasks may target a different version.
-    // Force both to 11 so they match. No afterEvaluate — configureEach is lazy.
+    // (shared_preferences_android, flutter_local_notifications, etc.) may inherit the
+    // installed JDK version (17 on CI) as their Java target. Force both to 11 to match.
+    //
+    // NOTE: options.release is blocked by AGP (prevents Android bootclasspath setup).
+    //       Use sourceCompatibility/targetCompatibility on the task instead.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
     }
     tasks.withType(JavaCompile::class.java).configureEach {
-        options.release.set(11)
+        sourceCompatibility = JavaVersion.VERSION_11.toString()
+        targetCompatibility = JavaVersion.VERSION_11.toString()
     }
 }

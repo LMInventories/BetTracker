@@ -13,12 +13,13 @@ allprojects {
         }
     }
 
-    // Force Java and Kotlin to the same JVM target (11) so KGP 2.x consistency
-    // check passes for all plugin subprojects. configureEach is lazy — no afterEvaluate.
+    // Force Java and Kotlin to the same JVM target (11) to satisfy KGP 2.x consistency check.
+    // options.release is blocked by AGP — use sourceCompatibility/targetCompatibility instead.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions.jvmTarget = '11'
     }
     tasks.withType(JavaCompile).configureEach {
-        options.release = 11
+        sourceCompatibility = '11'
+        targetCompatibility = '11'
     }
 }
