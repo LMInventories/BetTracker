@@ -46,7 +46,7 @@ class RuleCard extends ConsumerWidget {
             ),
             Switch.adaptive(
               value: rule.isActive,
-              activeColor: primary,
+              activeThumbColor: primary,
               onChanged: (_) =>
                   ref.read(rulesProvider.notifier).toggleRule(rule.id),
             ),

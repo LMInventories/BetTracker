@@ -146,23 +146,30 @@ class _CreateRuleSheetState extends ConsumerState<CreateRuleSheet> {
           const Text('Stat',
               style: TextStyle(color: Colors.white38, fontSize: 12)),
           const SizedBox(height: 6),
-          DropdownButtonFormField<StatType>(
-            value: _stat,
-            dropdownColor:
-                Theme.of(context).colorScheme.surfaceContainer,
-            style: const TextStyle(color: Colors.white),
+          InputDecorator(
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white24)),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             ),
-            items: stats
-                .map((s) => DropdownMenuItem(
-                    value: s,
-                    child: Text(s.label,
-                        style: const TextStyle(color: Colors.white))))
-                .toList(),
-            onChanged: (v) => setState(() => _stat = v!),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<StatType>(
+                value: _stat,
+                isExpanded: true,
+                dropdownColor:
+                    Theme.of(context).colorScheme.surfaceContainer,
+                style: const TextStyle(color: Colors.white),
+                items: stats
+                    .map((s) => DropdownMenuItem(
+                        value: s,
+                        child: Text(s.label,
+                            style: const TextStyle(color: Colors.white))))
+                    .toList(),
+                onChanged: (v) => setState(() => _stat = v!),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
 
