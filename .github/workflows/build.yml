@@ -38,24 +38,34 @@ jobs:
 
       - name: Pin Kotlin 2.1.0 and apply stdlib resolution
         run: |
-          # Old-style projects (pre-3.19): kotlin_version in buildscript block of build.gradle
+          # Show what Flutter actually generated so we can debug any future issues
+          echo "=== Generated Android Gradle files ==="
+          find android -maxdepth 2 \( -name "*.gradle" -o -name "*.gradle.kts" \) 2>/dev/null | sort
+
+          # Old-style (pre-Flutter-3.19): ext.kotlin_version in build.gradle buildscript block
           sed -i "s/ext\.kotlin_version = '[^']*'/ext.kotlin_version = '2.1.0'/" \
             android/build.gradle 2>/dev/null || true
 
-          # Plugin DSL projects (Flutter 3.19+): version string in settings.gradle plugins block
-          # Do NOT replace build.gradle wholesale — that conflicts with the Plugin DSL loader.
+          # Plugin DSL, Groovy DSL: id "org.jetbrains.kotlin.android" version "x" in settings.gradle
           sed -i \
             's/"org\.jetbrains\.kotlin\.android" version "[^"]*"/"org.jetbrains.kotlin.android" version "2.1.0"/g' \
             android/settings.gradle 2>/dev/null || true
 
-          # Append stdlib duplicate-class resolution (safe to append to either project style)
+          # Plugin DSL, Kotlin DSL: id("org.jetbrains.kotlin.android") version "x" in settings.gradle.kts
+          # Flutter 3.22 generates settings.gradle.kts (not .gradle) — this is the likely active file
+          sed -i \
+            's/id("org\.jetbrains\.kotlin\.android") version "[^"]*"/id("org.jetbrains.kotlin.android") version "2.1.0"/g' \
+            android/settings.gradle.kts 2>/dev/null || true
+
+          # Append stdlib duplicate-class resolution to build.gradle (safe for all project styles)
           cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
 
-          # Diagnostic: show what Gradle will actually use
+          echo "=== settings.gradle ==="
+          head -40 android/settings.gradle 2>/dev/null || echo "(not found)"
+          echo "=== settings.gradle.kts ==="
+          head -40 android/settings.gradle.kts 2>/dev/null || echo "(not found)"
           echo "=== build.gradle (kotlin lines) ==="
-          grep -i kotlin android/build.gradle | head -10 || echo "(none)"
-          echo "=== settings.gradle (kotlin lines) ==="
-          grep -i kotlin android/settings.gradle 2>/dev/null | head -10 || echo "(none)"
+          grep -i kotlin android/build.gradle 2>/dev/null || echo "(none)"
 
       - name: Install dependencies
         run: flutter pub get
