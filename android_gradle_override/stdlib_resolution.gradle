@@ -13,13 +13,10 @@ allprojects {
         }
     }
 
-    // Force Java and Kotlin to the same JVM target (11) to satisfy KGP 2.x consistency check.
-    // options.release is blocked by AGP — use sourceCompatibility/targetCompatibility instead.
+    // Match Kotlin jvmTarget to the Java compile target (17 from CI's JDK 17).
+    // AGP's toolchain integration makes Java target 17 regardless of task-level overrides;
+    // Kotlin must match to satisfy KGP 2.x's strict consistency check.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-        kotlinOptions.jvmTarget = '11'
-    }
-    tasks.withType(JavaCompile).configureEach {
-        sourceCompatibility = '11'
-        targetCompatibility = '11'
+        kotlinOptions.jvmTarget = '17'
     }
 }

@@ -1,14 +1,15 @@
+
 // Appended to android/app/build.gradle after flutter create scaffold (Groovy DSL variant).
 // Multiple android{} blocks merge — later values override earlier ones.
 
 android {
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
-        jvmTarget '11'
+        jvmTarget '17'
     }
     defaultConfig {
         minSdkVersion 21

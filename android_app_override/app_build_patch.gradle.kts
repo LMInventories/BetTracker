@@ -1,20 +1,14 @@
 
 // Appended to android/app/build.gradle.kts after flutter create scaffold.
 // Multiple android{}/kotlin{} blocks merge — later values override earlier ones.
-//
-// Fixes applied:
-//   1. Core library desugaring — required by flutter_local_notifications 17+
-//      (uses java.time APIs not natively available on Android < 26).
-//   2. Java 11 source/target — modern plugin bytecode targets Java 11; mismatching
-//      sourceCompatibility causes Kotlin K2 compilation failures in subprojects.
-//   3. minSdk 21 — workmanager hard minimum; flutter.minSdkVersion may default lower.
-//
-// NOTE: kotlinOptions is deprecated-as-error in Kotlin DSL — use kotlin{compilerOptions}.
 
 android {
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        // Match the CI JDK (17) so Java and Kotlin targets are consistent.
+        // Core library desugaring handles java.time APIs on Android < 26 regardless
+        // of the Java bytecode target version.
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
     defaultConfig {
@@ -24,7 +18,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
