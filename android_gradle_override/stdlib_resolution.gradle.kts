@@ -1,9 +1,8 @@
 
-// Kotlin DSL variant — appended when flutter create generates android/build.gradle.kts.
+// Kotlin DSL variant — appended to android/build.gradle.kts after flutter create scaffold.
 
 // Kotlin 1.8+ merged kotlin-stdlib-jdk7 and kotlin-stdlib-jdk8 into the main
-// stdlib artifact. If any dependency still pulls in an old separate jdk7/jdk8
-// artifact at a different version, Gradle raises a duplicate-class error.
+// stdlib artifact. Force all configs to the same version to prevent duplicate-class errors.
 allprojects {
     configurations.all {
         resolutionStrategy.eachDependency {
@@ -13,16 +12,18 @@ allprojects {
             }
         }
     }
-}
 
-// Kotlin 2.x (K2 compiler) enforces a strict "inconsistent JVM-target" check.
-// Plugin subprojects (workmanager, shared_preferences_android, etc.) may declare
-// jvmTarget = "1.8" in their own build files while the toolchain expects "11".
-// This override runs after each subproject is configured and wins over its own setting.
-allprojects {
+    // KGP 2.x (K2 compiler) enforces strict JVM-target consistency across subprojects.
+    // Plugin subprojects (workmanager, shared_preferences_android, etc.) may carry
+    // jvmTarget="1.8" in their own build files. Override to "11" for every KotlinCompile
+    // task across all projects after each project finishes configuring itself.
+    //
+    // NOTE: kotlinOptions is deprecated-as-error in Kotlin DSL scripts — use compilerOptions.
     afterEvaluate {
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).configureEach {
-            kotlinOptions.jvmTarget = "11"
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            }
         }
     }
 }
