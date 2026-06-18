@@ -11,7 +11,7 @@ class AppTheme {
       brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
         primary: primary,
-        secondary: const Color(0xFF40C4FF),
+        secondary: Color(0xFF40C4FF),
         surface: surface,
         surfaceContainer: card,
         onPrimary: Colors.black,
@@ -31,7 +31,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: card,
-        indicatorColor: primary.withOpacity(0.2),
+        indicatorColor: primary.withValues(alpha: 0.2),
         iconTheme: WidgetStateProperty.all(
           const IconThemeData(color: Colors.white70),
         ),
@@ -44,7 +44,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: card,
-        selectedColor: primary.withOpacity(0.2),
+        selectedColor: primary.withValues(alpha: 0.2),
         labelStyle: const TextStyle(color: Colors.white),
       ),
     );

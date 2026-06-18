@@ -33,7 +33,7 @@ class DateFilterBar extends ConsumerWidget {
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(

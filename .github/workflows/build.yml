@@ -20,52 +20,61 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      # Use latest stable Flutter — 3.22.0 bundled Kotlin 1.9.22 inside its own
+      # Gradle plugin (not patchable from settings.gradle/build.gradle), which is
+      # incompatible with plugin versions that now require Kotlin 2.x.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
           channel: 'stable'
           cache: true
 
+      - name: Show Flutter version
+        run: flutter --version
+
+      # Run flutter create in a temp directory — running it in the existing repo
+      # directory (which already has pubspec.yaml and lib/) causes it to silently
+      # skip generating the android/ platform directory.
       - name: Scaffold Android boilerplate
         run: |
-          flutter create --project-name bettracker --org com.bettracker --platforms android . 2>/dev/null || true
+          flutter create \
+            --project-name bettracker \
+            --org com.bettracker \
+            --platforms android \
+            /tmp/scaffold
+          cp -r /tmp/scaffold/android ./android
+
+      - name: Show generated Gradle files
+        run: |
+          echo "=== Gradle files ==="
+          find android \( -name "*.gradle" -o -name "*.gradle.kts" -o -name "*.properties" \) | sort
+          echo "=== settings.gradle ==="
+          cat android/settings.gradle 2>/dev/null || echo "(not found)"
+          echo "=== settings.gradle.kts ==="
+          cat android/settings.gradle.kts 2>/dev/null || echo "(not found)"
+          echo "=== build.gradle ==="
+          cat android/build.gradle 2>/dev/null || echo "(not found)"
+          echo "=== build.gradle.kts ==="
+          cat android/build.gradle.kts 2>/dev/null || echo "(not found)"
+          echo "=== app/build.gradle ==="
+          cat android/app/build.gradle 2>/dev/null || echo "(not found)"
+          echo "=== app/build.gradle.kts ==="
+          cat android/app/build.gradle.kts 2>/dev/null || echo "(not found)"
 
       - name: Restore custom AndroidManifest
         run: |
           cp -f android_manifest_override/AndroidManifest.xml \
             android/app/src/main/AndroidManifest.xml
 
-      - name: Pin Kotlin 2.1.0 and apply stdlib resolution
+      - name: Apply stdlib duplicate-class resolution
         run: |
-          # Show what Flutter actually generated so we can debug any future issues
-          echo "=== Generated Android Gradle files ==="
-          find android -maxdepth 2 \( -name "*.gradle" -o -name "*.gradle.kts" \) 2>/dev/null | sort
-
-          # Old-style (pre-Flutter-3.19): ext.kotlin_version in build.gradle buildscript block
-          sed -i "s/ext\.kotlin_version = '[^']*'/ext.kotlin_version = '2.1.0'/" \
-            android/build.gradle 2>/dev/null || true
-
-          # Plugin DSL, Groovy DSL: id "org.jetbrains.kotlin.android" version "x" in settings.gradle
-          sed -i \
-            's/"org\.jetbrains\.kotlin\.android" version "[^"]*"/"org.jetbrains.kotlin.android" version "2.1.0"/g' \
-            android/settings.gradle 2>/dev/null || true
-
-          # Plugin DSL, Kotlin DSL: id("org.jetbrains.kotlin.android") version "x" in settings.gradle.kts
-          # Flutter 3.22 generates settings.gradle.kts (not .gradle) — this is the likely active file
-          sed -i \
-            's/id("org\.jetbrains\.kotlin\.android") version "[^"]*"/id("org.jetbrains.kotlin.android") version "2.1.0"/g' \
-            android/settings.gradle.kts 2>/dev/null || true
-
-          # Append stdlib duplicate-class resolution to build.gradle (safe for all project styles)
-          cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
-
-          echo "=== settings.gradle ==="
-          head -40 android/settings.gradle 2>/dev/null || echo "(not found)"
-          echo "=== settings.gradle.kts ==="
-          head -40 android/settings.gradle.kts 2>/dev/null || echo "(not found)"
-          echo "=== build.gradle (kotlin lines) ==="
-          grep -i kotlin android/build.gradle 2>/dev/null || echo "(none)"
+          # Append Groovy resolution strategy to build.gradle if it exists (Groovy DSL project)
+          if [ -f android/build.gradle ]; then
+            cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
+            echo "Appended stdlib resolution to android/build.gradle"
+          else
+            echo "No build.gradle found — skipping stdlib resolution append"
+          fi
 
       - name: Install dependencies
         run: flutter pub get
@@ -74,7 +83,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release --verbose
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

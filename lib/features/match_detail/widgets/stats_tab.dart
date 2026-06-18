@@ -56,7 +56,7 @@ class _ToggleRow extends StatelessWidget {
         onSelectionChanged: (s) => onToggle(s.first),
         style: SegmentedButton.styleFrom(
           selectedBackgroundColor:
-              Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
         ),
       ),
     );
@@ -315,7 +315,7 @@ class _PlayerRow extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: primary.withOpacity(0.15),
+                color: primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(

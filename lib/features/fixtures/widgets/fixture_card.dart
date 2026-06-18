@@ -107,9 +107,9 @@ class _StatusBadge extends StatelessWidget {
             width: 48,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.15),
+              color: Colors.red.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.red.withOpacity(0.5)),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
             ),
             child: Text(
               fixture.statusShort,

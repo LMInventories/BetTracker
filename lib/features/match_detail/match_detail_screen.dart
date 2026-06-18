@@ -126,7 +126,7 @@ class _ScoreHeader extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.15),
+                    color: Colors.red.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text("${fixture.elapsed}'",

@@ -27,7 +27,7 @@ class FixturesScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.15),
+                          color: Colors.red.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.red, width: 1),
                         ),
@@ -156,17 +156,17 @@ class _NoApiKey extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.key, size: 56, color: Colors.white24),
-            const SizedBox(height: 16),
-            const Text(
+            Icon(Icons.key, size: 56, color: Colors.white24),
+            SizedBox(height: 16),
+            Text(
               'No API key set',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Add your RapidAPI key in Settings to start tracking matches.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white54),
