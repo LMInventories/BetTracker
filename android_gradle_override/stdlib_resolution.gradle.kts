@@ -13,13 +13,16 @@ allprojects {
         }
     }
 
-    // KGP 2.x (K2 compiler) enforces strict JVM-target consistency across subprojects.
-    // tasks.withType(...).configureEach is lazy — no afterEvaluate needed, and safe
-    // to call even after subprojects are already configured (avoids the
-    // "Cannot run afterEvaluate when project is already evaluated" error).
+    // KGP 2.x enforces strict Java/Kotlin JVM-target consistency. Plugin subprojects
+    // (shared_preferences_android, workmanager, etc.) pick up the installed JDK version
+    // for javac (17 on CI) while their Kotlin tasks may target a different version.
+    // Force both to 11 so they match. No afterEvaluate — configureEach is lazy.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
+    }
+    tasks.withType(JavaCompile::class.java).configureEach {
+        options.release.set(11)
     }
 }

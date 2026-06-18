@@ -13,8 +13,12 @@ allprojects {
         }
     }
 
-    // tasks.withType(...).configureEach is lazy — no afterEvaluate wrapper needed.
+    // Force Java and Kotlin to the same JVM target (11) so KGP 2.x consistency
+    // check passes for all plugin subprojects. configureEach is lazy — no afterEvaluate.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions.jvmTarget = '11'
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 11
     }
 }
