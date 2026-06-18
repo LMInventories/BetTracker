@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../core/providers/fixtures_provider.dart';
 import 'widgets/fixture_card.dart';
 import 'widgets/date_filter_bar.dart';
@@ -150,9 +149,9 @@ class _LeagueSection extends StatelessWidget {
 class _NoApiKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

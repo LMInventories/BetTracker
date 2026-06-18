@@ -42,7 +42,7 @@ class TeamMatchStats {
     final stats = (json['statistics'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
 
-    int _int(String key) {
+    int getInt(String key) {
       final match = stats.firstWhere(
         (s) => s['type'] == key,
         orElse: () => {'value': null},
@@ -54,7 +54,7 @@ class TeamMatchStats {
       return 0;
     }
 
-    String? _str(String key) {
+    String? getStr(String key) {
       final match = stats.firstWhere(
         (s) => s['type'] == key,
         orElse: () => {'value': null},
@@ -65,21 +65,21 @@ class TeamMatchStats {
 
     return TeamMatchStats(
       team: team,
-      shotsOnGoal: _int('Shots on Goal'),
-      shotsOffGoal: _int('Shots off Goal'),
-      totalShots: _int('Total Shots'),
-      blockedShots: _int('Blocked Shots'),
-      shotsInsideBox: _int('Shots insidebox'),
-      shotsOutsideBox: _int('Shots outsidebox'),
-      fouls: _int('Fouls'),
-      cornerKicks: _int('Corner Kicks'),
-      offsides: _int('Offsides'),
-      possession: _str('Ball Possession'),
-      yellowCards: _int('Yellow Cards'),
-      redCards: _int('Red Cards'),
-      goalkeeperSaves: _int('Goalkeeper Saves'),
-      totalPasses: _int('Total passes'),
-      accuratePasses: _int('Passes accurate'),
+      shotsOnGoal: getInt('Shots on Goal'),
+      shotsOffGoal: getInt('Shots off Goal'),
+      totalShots: getInt('Total Shots'),
+      blockedShots: getInt('Blocked Shots'),
+      shotsInsideBox: getInt('Shots insidebox'),
+      shotsOutsideBox: getInt('Shots outsidebox'),
+      fouls: getInt('Fouls'),
+      cornerKicks: getInt('Corner Kicks'),
+      offsides: getInt('Offsides'),
+      possession: getStr('Ball Possession'),
+      yellowCards: getInt('Yellow Cards'),
+      redCards: getInt('Red Cards'),
+      goalkeeperSaves: getInt('Goalkeeper Saves'),
+      totalPasses: getInt('Total passes'),
+      accuratePasses: getInt('Passes accurate'),
     );
   }
 }

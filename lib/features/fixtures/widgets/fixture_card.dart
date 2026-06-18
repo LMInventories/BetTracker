@@ -130,12 +130,12 @@ class _StatusBadge extends StatelessWidget {
       );
     }
     if (fixture.isFinished) {
-      return SizedBox(
+      return const SizedBox(
         width: 48,
         child: Text(
           'FT',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: Colors.white38, fontSize: 12),
         ),
       );
     }

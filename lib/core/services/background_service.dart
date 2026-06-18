@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import '../api/api_client.dart';
 import '../api/football_api.dart';
 import '../models/notification_rule.dart';
 import '../models/player_stats.dart';
@@ -59,12 +57,12 @@ Future<void> _checkFixture(
     try {
       final players = await api.getPlayerStats(fixtureId);
       for (final rule in playerRules) {
-        final firedKey = '${rule.id}';
+        final firedKey = rule.id;
         if (firedSet.contains(firedKey)) continue;
 
         final player = players.firstWhere(
           (p) => p.playerId == rule.playerId,
-          orElse: () => PlayerMatchStats(
+          orElse: () => const PlayerMatchStats(
               playerId: 0, playerName: '', teamId: 0, isSubstitute: false),
         );
         if (player.playerId == 0) continue;
@@ -86,7 +84,7 @@ Future<void> _checkFixture(
     try {
       final teamStats = await api.getTeamStats(fixtureId);
       for (final rule in teamRules) {
-        final firedKey = '${rule.id}';
+        final firedKey = rule.id;
         if (firedSet.contains(firedKey)) continue;
 
         final matching = teamStats.where((t) => t.team.id == rule.teamId);

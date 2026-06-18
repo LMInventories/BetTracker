@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/notification_rule.dart';
+import '../../../core/models/player_stats.dart';
 import '../../../core/providers/rules_provider.dart';
 
 class RuleCard extends ConsumerWidget {

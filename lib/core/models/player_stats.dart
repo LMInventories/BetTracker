@@ -77,7 +77,7 @@ class PlayerMatchStats {
         (playerJson['statistics'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
     final s = statsList.isNotEmpty ? statsList.first : <String, dynamic>{};
 
-    int? _int(Map<String, dynamic>? map, String key) {
+    int? intVal(Map<String, dynamic>? map, String key) {
       if (map == null) return null;
       final v = map[key];
       if (v == null) return null;
@@ -100,22 +100,22 @@ class PlayerMatchStats {
       playerName: player['name'] as String? ?? '',
       photo: player['photo'] as String?,
       teamId: teamId,
-      minutesPlayed: _int(games, 'minutes'),
-      shirtNumber: _int(games, 'number'),
+      minutesPlayed: intVal(games, 'minutes'),
+      shirtNumber: intVal(games, 'number'),
       position: games?['position'] as String?,
       isSubstitute: games?['substitute'] as bool? ?? false,
-      shotsTotal: _int(shots, 'total'),
-      shotsOnTarget: _int(shots, 'on'),
-      goalsScored: _int(goals, 'total'),
-      assists: _int(goals, 'assists'),
-      foulsCommitted: _int(fouls, 'committed'),
-      foulsDrawn: _int(fouls, 'drawn'),
-      yellowCards: _int(cards, 'yellow'),
-      redCards: _int(cards, 'red'),
-      dribblesAttempted: _int(dribbles, 'attempts'),
-      dribblesSucceeded: _int(dribbles, 'success'),
-      keyPasses: _int(passes, 'key'),
-      saves: _int(goals, 'saves'),
+      shotsTotal: intVal(shots, 'total'),
+      shotsOnTarget: intVal(shots, 'on'),
+      goalsScored: intVal(goals, 'total'),
+      assists: intVal(goals, 'assists'),
+      foulsCommitted: intVal(fouls, 'committed'),
+      foulsDrawn: intVal(fouls, 'drawn'),
+      yellowCards: intVal(cards, 'yellow'),
+      redCards: intVal(cards, 'red'),
+      dribblesAttempted: intVal(dribbles, 'attempts'),
+      dribblesSucceeded: intVal(dribbles, 'success'),
+      keyPasses: intVal(passes, 'key'),
+      saves: intVal(goals, 'saves'),
     );
   }
 }
