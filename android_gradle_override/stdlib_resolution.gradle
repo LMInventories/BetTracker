@@ -1,7 +1,8 @@
 
-// Kotlin 1.8+ merged kotlin-stdlib-jdk7 and kotlin-stdlib-jdk8 into the main
-// stdlib artifact. If any dependency still pulls in an old separate jdk7/jdk8
-// artifact at a different version, Gradle raises a duplicate-class error.
+// Groovy DSL variant — appended to android/build.gradle after flutter create scaffold.
+
+// Kotlin 1.8+ merged kotlin-stdlib-jdk7/jdk8 into the main stdlib artifact.
+// Force all configs to the same version to prevent duplicate-class errors.
 allprojects {
     configurations.all {
         resolutionStrategy.eachDependency { details ->
@@ -11,16 +12,9 @@ allprojects {
             }
         }
     }
-}
 
-// Kotlin 2.x (K2 compiler) enforces a strict "inconsistent JVM-target" check.
-// Plugin subprojects (workmanager, shared_preferences_android, etc.) may declare
-// jvmTarget = "1.8" in their own build files while the toolchain expects "11".
-// This override runs after each subproject is configured and wins over its own setting.
-allprojects {
-    afterEvaluate {
-        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-            kotlinOptions.jvmTarget = '11'
-        }
+    // tasks.withType(...).configureEach is lazy — no afterEvaluate wrapper needed.
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions.jvmTarget = '11'
     }
 }
