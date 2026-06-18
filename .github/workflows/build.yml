@@ -36,9 +36,22 @@ jobs:
           cp -f android_manifest_override/AndroidManifest.xml \
             android/app/src/main/AndroidManifest.xml
 
-      - name: Apply build.gradle overrides
+      - name: Apply Gradle overrides and pin Kotlin version
         run: |
+          # Override project-level build.gradle (old-style buildscript block)
           cp -f android_gradle_override/build.gradle android/build.gradle
+
+          # Flutter 3.19+ uses Plugin DSL — Kotlin version lives in settings.gradle,
+          # not build.gradle. Patch both so we're covered regardless of project style.
+          sed -i \
+            's/"org\.jetbrains\.kotlin\.android" version "[^"]*"/"org.jetbrains.kotlin.android" version "2.1.0"/g' \
+            android/settings.gradle 2>/dev/null || true
+
+          # Diagnostic: confirm the versions that will actually be used
+          echo "--- build.gradle kotlin_version ---"
+          grep -E "kotlin_version|kotlin\.android" android/build.gradle || echo "(not found)"
+          echo "--- settings.gradle kotlin version ---"
+          grep -E "kotlin" android/settings.gradle 2>/dev/null || echo "(settings.gradle not present or no kotlin entry)"
 
       - name: Install dependencies
         run: flutter pub get
@@ -47,7 +60,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
