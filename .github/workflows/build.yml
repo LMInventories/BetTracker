@@ -66,6 +66,24 @@ jobs:
           cp -f android_manifest_override/AndroidManifest.xml \
             android/app/src/main/AndroidManifest.xml
 
+      - name: Patch app build file
+        run: |
+          # Append desugaring + Java 11 + minSdk 21 to the generated app build file.
+          # Multiple android{} blocks merge in Gradle; later values override earlier.
+          if [ -f android/app/build.gradle.kts ]; then
+            cat android_app_override/app_build_patch.gradle.kts >> android/app/build.gradle.kts
+            echo "Patched android/app/build.gradle.kts"
+            echo "=== app/build.gradle.kts (tail) ==="
+            tail -30 android/app/build.gradle.kts
+          elif [ -f android/app/build.gradle ]; then
+            cat android_app_override/app_build_patch.gradle >> android/app/build.gradle
+            echo "Patched android/app/build.gradle"
+            echo "=== app/build.gradle (tail) ==="
+            tail -30 android/app/build.gradle
+          else
+            echo "ERROR: no app build file found" && exit 1
+          fi
+
       - name: Apply stdlib duplicate-class resolution
         run: |
           # Append Groovy resolution strategy to build.gradle if it exists (Groovy DSL project)
@@ -83,7 +101,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
