@@ -101,11 +101,91 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Patch workmanager V1 embedding references
+        # workmanager <=0.5.2 references Flutter V1 embedding shim classes
+        # (ShimPluginRegistry, PluginRegistrantCallback, Registrar) that were removed
+        # from Flutter stable. These code paths are dead in V2 apps — remove them so
+        # the K2 compiler can resolve all symbols. A newer compatible version is used
+        # automatically if available; this patch is a no-op if the file doesn't match.
+        run: |
+          python3 - << 'PYEOF'
+          import re, glob, os, sys
+
+          dirs = glob.glob('/home/runner/.pub-cache/hosted/pub.dev/workmanager-*/android/src/main/kotlin/dev/fluttercommunity/workmanager')
+          if not dirs:
+              print("workmanager source not found — skipping patch")
+              sys.exit(0)
+
+          wm_dir = sorted(dirs)[-1]
+          print(f"Patching workmanager at: {wm_dir}")
+
+          def remove_method_block(text, signature):
+              """Remove a method block (and any preceding annotations) by brace counting."""
+              lines = text.split('\n')
+              result = []
+              i = 0
+              while i < len(lines):
+                  line = lines[i]
+                  if signature in line:
+                      # Remove immediately preceding annotation lines (@JvmStatic etc.)
+                      while result and result[-1].strip().startswith('@'):
+                          result.pop()
+                      # Skip the method body via brace depth tracking
+                      depth = line.count('{') - line.count('}')
+                      i += 1
+                      while i < len(lines) and depth > 0:
+                          depth += lines[i].count('{') - lines[i].count('}')
+                          i += 1
+                  else:
+                      result.append(line)
+                      i += 1
+              return '\n'.join(result)
+
+          # --- BackgroundWorker.kt ---
+          # Errors: line 14 (shim import), line 98 (ShimPluginRegistry.registerWith)
+          bw = os.path.join(wm_dir, 'BackgroundWorker.kt')
+          if os.path.exists(bw):
+              text = open(bw).read()
+              orig = text
+              text = re.sub(r'import io\.flutter\.embedding\.engine\.plugins\.shim[^\n]*\n', '', text)
+              text = re.sub(r'[ \t]*[^\n]*ShimPluginRegistry[^\n]*\n', '', text)
+              if text != orig:
+                  open(bw, 'w').write(text)
+                  print("  patched BackgroundWorker.kt")
+
+          # --- WorkmanagerPlugin.kt ---
+          # Errors: lines 35,49 (PluginRegistrantCallback), lines 38-41 (registerWith/Registrar)
+          wp = os.path.join(wm_dir, 'WorkmanagerPlugin.kt')
+          if os.path.exists(wp):
+              text = open(wp).read()
+              orig = text
+              # Remove PluginRegistrantCallback property/setter declarations
+              text = re.sub(r'[ \t]*[^\n]*PluginRegistrantCallback[^\n]*\n', '', text)
+              # Remove the V1 registerWith(Registrar) method block
+              text = remove_method_block(text, 'fun registerWith(')
+              if text != orig:
+                  open(wp, 'w').write(text)
+                  print("  patched WorkmanagerPlugin.kt")
+
+          print("Patch complete")
+          PYEOF
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release
+        run: |
+          set -o pipefail
+          flutter build apk --release 2>&1 | tee /tmp/flutter_build.log
+
+      - name: Show Kotlin errors (on failure)
+        if: failure()
+        run: |
+          echo "=== Kotlin/Java compiler errors ==="
+          grep -E "^e: |error: |Error " /tmp/flutter_build.log | head -100 || echo "(no lines matched — check full log above)"
+          echo ""
+          echo "=== Last 150 lines of build log ==="
+          tail -150 /tmp/flutter_build.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

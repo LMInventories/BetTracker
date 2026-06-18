@@ -14,9 +14,10 @@ allprojects {
     }
 
     // Match Kotlin jvmTarget to the Java compile target (17 from CI's JDK 17).
-    // AGP's toolchain integration makes Java target 17 regardless of task-level overrides;
-    // Kotlin must match to satisfy KGP 2.x's strict consistency check.
+    // languageVersion = 1.9 enables K2 compat mode for plugins that predate K2.
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions.jvmTarget = '17'
+        kotlinOptions.languageVersion = '1.9'
+        kotlinOptions.apiVersion = '1.9'
     }
 }
