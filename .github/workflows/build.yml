@@ -36,22 +36,26 @@ jobs:
           cp -f android_manifest_override/AndroidManifest.xml \
             android/app/src/main/AndroidManifest.xml
 
-      - name: Apply Gradle overrides and pin Kotlin version
+      - name: Pin Kotlin 2.1.0 and apply stdlib resolution
         run: |
-          # Override project-level build.gradle (old-style buildscript block)
-          cp -f android_gradle_override/build.gradle android/build.gradle
+          # Old-style projects (pre-3.19): kotlin_version in buildscript block of build.gradle
+          sed -i "s/ext\.kotlin_version = '[^']*'/ext.kotlin_version = '2.1.0'/" \
+            android/build.gradle 2>/dev/null || true
 
-          # Flutter 3.19+ uses Plugin DSL — Kotlin version lives in settings.gradle,
-          # not build.gradle. Patch both so we're covered regardless of project style.
+          # Plugin DSL projects (Flutter 3.19+): version string in settings.gradle plugins block
+          # Do NOT replace build.gradle wholesale — that conflicts with the Plugin DSL loader.
           sed -i \
             's/"org\.jetbrains\.kotlin\.android" version "[^"]*"/"org.jetbrains.kotlin.android" version "2.1.0"/g' \
             android/settings.gradle 2>/dev/null || true
 
-          # Diagnostic: confirm the versions that will actually be used
-          echo "--- build.gradle kotlin_version ---"
-          grep -E "kotlin_version|kotlin\.android" android/build.gradle || echo "(not found)"
-          echo "--- settings.gradle kotlin version ---"
-          grep -E "kotlin" android/settings.gradle 2>/dev/null || echo "(settings.gradle not present or no kotlin entry)"
+          # Append stdlib duplicate-class resolution (safe to append to either project style)
+          cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
+
+          # Diagnostic: show what Gradle will actually use
+          echo "=== build.gradle (kotlin lines) ==="
+          grep -i kotlin android/build.gradle | head -10 || echo "(none)"
+          echo "=== settings.gradle (kotlin lines) ==="
+          grep -i kotlin android/settings.gradle 2>/dev/null | head -10 || echo "(none)"
 
       - name: Install dependencies
         run: flutter pub get
