@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/fixture.dart';
 import '../../core/providers/fixtures_provider.dart';
 import 'widgets/fixture_card.dart';
 import 'widgets/date_filter_bar.dart';
@@ -120,7 +121,7 @@ class FixturesScreen extends ConsumerWidget {
 
 class _LeagueSection extends StatelessWidget {
   final String league;
-  final List fixtures;
+  final List<Fixture> fixtures;
 
   const _LeagueSection({required this.league, required this.fixtures});
 
