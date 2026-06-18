@@ -1,0 +1,15 @@
+
+// Kotlin 1.8+ merged kotlin-stdlib-jdk7 and kotlin-stdlib-jdk8 into the main
+// stdlib artifact. If any dependency still pulls in an old separate jdk7/jdk8
+// artifact at a different version, Gradle raises a duplicate-class error.
+// This resolution strategy forces them all to the same version as the project.
+allprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin' &&
+                details.requested.name in ['kotlin-stdlib-jdk8', 'kotlin-stdlib-jdk7']) {
+                details.useVersion '1.9.22'
+            }
+        }
+    }
+}

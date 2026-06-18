@@ -36,6 +36,13 @@ jobs:
           cp -f android_manifest_override/AndroidManifest.xml \
             android/app/src/main/AndroidManifest.xml
 
+      - name: Fix Kotlin stdlib version conflict
+        run: |
+          # flutter create pins Kotlin ~1.7.x; our plugins pull in stdlib 1.8.10 which
+          # merged jdk7/jdk8 into the main artifact — causes duplicate class errors.
+          sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.22'/" android/build.gradle
+          cat android_gradle_override/stdlib_resolution.gradle >> android/build.gradle
+
       - name: Install dependencies
         run: flutter pub get
 
