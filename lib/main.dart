@@ -11,7 +11,7 @@ void main() async {
   await NotificationService.init();
   await NotificationService.requestPermission();
 
-  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  await Workmanager().initialize(callbackDispatcher);
   await BackgroundService.register();
 
   runApp(const ProviderScope(child: BetTrackerApp()));
